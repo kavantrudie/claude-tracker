@@ -1,14 +1,16 @@
 # Claude Code Usage Tracker
 
-A CLI tool to track Claude Code API usage costs, token statistics, session history, and more. Similar to what the codexbar Mac app provides, but as a cross-platform command-line tool.
+A comprehensive CLI tool and web dashboard to track Claude Code API usage costs, token statistics, session history, and more. Similar to what the codexbar Mac app provides, but as a cross-platform command-line tool with a beautiful web UI.
 
 ## Features
 
-- **Overall Statistics**: View total sessions, messages, token usage, and estimated costs
-- **Detailed Cost Breakdown**: Per-model cost analysis with cache savings calculation
-- **Session History**: Browse recent sessions with message counts and costs
-- **Real-time Cost Tracking**: Monitor your API usage as you work
-- **Cache Savings Analysis**: See how much you're saving with prompt caching
+- **🌐 Web Dashboard**: Beautiful, responsive web UI for visualizing your usage data
+- **📊 Overall Statistics**: View total sessions, messages, token usage, and estimated costs
+- **💰 Detailed Cost Breakdown**: Per-model cost analysis with cache savings calculation
+- **📜 Session History**: Browse recent sessions with message counts and costs
+- **⚡ Real-time Updates**: Auto-refreshing data every 30 seconds
+- **💾 Cache Savings Analysis**: See how much you're saving with prompt caching
+- **🔄 API Sync**: Fetch official usage data from Anthropic's Admin API
 
 ## Installation
 
@@ -23,7 +25,53 @@ npm run build
 npm run dev <command>
 ```
 
-## Commands
+## Quick Start
+
+### Web UI (Recommended)
+
+The easiest way to view your usage data is through the web dashboard:
+
+```bash
+# Start the web server
+npm run dev serve
+
+# Or specify a custom port
+npm run dev serve -- --port 8080
+
+# Open browser automatically
+npm run dev serve -- --open
+```
+
+Then open your browser to http://localhost:3000
+
+The web dashboard provides:
+- 📊 Real-time statistics cards (cost, savings, sessions, messages)
+- 💰 Per-model usage and cost breakdown
+- 📜 Recent sessions table
+- 🔄 Auto-refresh every 30 seconds
+- 🎨 Beautiful, responsive design
+
+## CLI Commands
+
+### `claude-tracker serve`
+
+Start the web UI server for a visual dashboard of your usage data.
+
+```bash
+# Basic usage
+npm run dev serve
+
+# Custom port and host
+npm run dev serve -- --port 8080 --host 0.0.0.0
+
+# Open browser automatically
+npm run dev serve -- --open
+```
+
+**Options:**
+- `-p, --port <port>`: Port to run server on (default: 3000)
+- `-H, --host <host>`: Host to bind to (default: localhost)
+- `-o, --open`: Open browser automatically
 
 ### `claude-tracker stats`
 

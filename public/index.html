@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code Usage Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.2rem;
+            margin-top: 50px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid white;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card h3 {
+            font-size: 0.85rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .subtitle {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .stat-card.cost .value {
+            color: #10b981;
+        }
+
+        .stat-card.sessions .value {
+            color: #f59e0b;
+        }
+
+        .stat-card.messages .value {
+            color: #ef4444;
+        }
+
+        .stat-card.savings .value {
+            color: #8b5cf6;
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .model-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .model-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            background: #f9fafb;
+        }
+
+        .model-card h4 {
+            font-size: 1.1rem;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .model-stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .model-stat:last-child {
+            border-bottom: none;
+        }
+
+        .model-stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .model-stat-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .cost-breakdown {
+            margin-top: 20px;
+        }
+
+        .cost-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            background: #f9fafb;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+
+        .cost-item-label {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .cost-item-value {
+            font-weight: 700;
+            color: #10b981;
+        }
+
+        .cost-item.total {
+            background: #667eea;
+            color: white;
+        }
+
+        .cost-item.total .cost-item-label,
+        .cost-item.total .cost-item-value {
+            color: white;
+        }
+
+        .sessions-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .sessions-table th {
+            background: #f9fafb;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .sessions-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .sessions-table tr:hover {
+            background: #f9fafb;
+        }
+
+        .project-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #667eea;
+            color: white;
+            border-radius: 12px;
+            font-size: 0.85rem;
+        }
+
+        .error {
+            background: #fee2e2;
+            border: 1px solid #fca5a5;
+            border-radius: 8px;
+            padding: 16px;
+            color: #991b1b;
+            margin: 20px 0;
+        }
+
+        .refresh-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-bottom: 20px;
+        }
+
+        .refresh-btn:hover {
+            background: #5568d3;
+        }
+
+        .refresh-btn:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-green {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-blue {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .model-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sessions-table {
+                font-size: 0.85rem;
+            }
+
+            .sessions-table th,
+            .sessions-table td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Claude Code Usage Tracker</h1>
+            <p>Monitor your API usage, costs, and savings</p>
+        </div>
+
+        <button class="refresh-btn" onclick="loadAllData()" id="refreshBtn">
+            🔄 Refresh Data
+        </button>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading your usage data...</p>
+        </div>
+
+        <div id="error" class="error" style="display: none;"></div>
+
+        <div id="content" style="display: none;">
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card cost">
+                    <h3>Total Cost</h3>
+                    <div class="value" id="totalCost">$0.00</div>
+                    <div class="subtitle" id="dateRange">Loading...</div>
+                </div>
+                <div class="stat-card savings">
+                    <h3>Cache Savings</h3>
+                    <div class="value" id="cacheSavings">$0.00</div>
+                    <div class="subtitle" id="savingsPercent">0% saved</div>
+                </div>
+                <div class="stat-card sessions">
+                    <h3>Total Sessions</h3>
+                    <div class="value" id="totalSessions">0</div>
+                    <div class="subtitle" id="sessionInfo">Loading...</div>
+                </div>
+                <div class="stat-card messages">
+                    <h3>Total Messages</h3>
+                    <div class="value" id="totalMessages">0</div>
+                    <div class="subtitle" id="messageInfo">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Model Breakdown -->
+            <div class="section">
+                <h2 class="section-title">Model Usage & Costs</h2>
+                <div class="model-grid" id="modelGrid"></div>
+            </div>
+
+            <!-- Cost Breakdown -->
+            <div class="section">
+                <h2 class="section-title">Detailed Cost Breakdown</h2>
+                <div class="cost-breakdown" id="costBreakdown"></div>
+            </div>
+
+            <!-- Recent Sessions -->
+            <div class="section">
+                <h2 class="section-title">Recent Sessions</h2>
+                <table class="sessions-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Project</th>
+                            <th>Messages</th>
+                            <th>Cost</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sessionsTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Built with ❤️ using Claude Code • Data updates in real-time</p>
+        </div>
+    </div>
+
+    <script>
+        // Utility functions
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2,
+            }).format(amount);
+        }
+
+        function formatNumber(num) {
+            return new Intl.NumberFormat('en-US').format(num);
+        }
+
+        function formatTokens(tokens) {
+            if (tokens >= 1000000) {
+                return (tokens / 1000000).toFixed(1) + 'M';
+            }
+            if (tokens >= 1000) {
+                return (tokens / 1000).toFixed(1) + 'K';
+            }
+            return tokens.toString();
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+            });
+        }
+
+        function formatDateTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit',
+            });
+        }
+
+        function getProjectName(path) {
+            return path.split('/').pop() || path.split('\\').pop() || path;
+        }
+
+        // API calls
+        async function fetchStats() {
+            const response = await fetch('/api/stats');
+            const data = await response.json();
+            if (!data.success) throw new Error(data.error);
+            return data.data;
+        }
+
+        async function fetchCost() {
+            const response = await fetch('/api/cost');
+            const data = await response.json();
+            if (!data.success) throw new Error(data.error);
+            return data.data;
+        }
+
+        async function fetchSessions() {
+            const response = await fetch('/api/sessions?limit=20');
+            const data = await response.json();
+            if (!data.success) throw new Error(data.error);
+            return data.data;
+        }
+
+        // Render functions
+        function renderStats(stats) {
+            const { summary, modelBreakdown } = stats;
+
+            // Summary cards
+            document.getElementById('totalCost').textContent = formatCurrency(summary.totalCost);
+            document.getElementById('cacheSavings').textContent = formatCurrency(summary.cacheSavings);
+            document.getElementById('totalSessions').textContent = formatNumber(summary.totalSessions);
+            document.getElementById('totalMessages').textContent = formatNumber(summary.totalMessages);
+
+            const fromDate = formatDate(summary.dateRange.from);
+            const toDate = formatDate(summary.dateRange.to);
+            document.getElementById('dateRange').textContent = `${fromDate} - ${toDate}`;
+
+            const savingsPercent = summary.cacheSavings > 0
+                ? Math.round((summary.cacheSavings / (summary.totalCost + summary.cacheSavings)) * 100)
+                : 0;
+            document.getElementById('savingsPercent').textContent = `${savingsPercent}% saved`;
+
+            document.getElementById('sessionInfo').textContent = `${summary.totalToolCalls} tool calls`;
+            document.getElementById('messageInfo').textContent = 'Across all sessions';
+
+            // Model cards
+            const modelGrid = document.getElementById('modelGrid');
+            modelGrid.innerHTML = '';
+
+            modelBreakdown.forEach(model => {
+                const totalTokens = model.inputTokens + model.outputTokens;
+                const card = document.createElement('div');
+                card.className = 'model-card';
+                card.innerHTML = `
+                    <h4>${model.name}</h4>
+                    <div class="model-stat">
+                        <span class="model-stat-label">Input Tokens</span>
+                        <span class="model-stat-value">${formatTokens(model.inputTokens)}</span>
+                    </div>
+                    <div class="model-stat">
+                        <span class="model-stat-label">Output Tokens</span>
+                        <span class="model-stat-value">${formatTokens(model.outputTokens)}</span>
+                    </div>
+                    <div class="model-stat">
+                        <span class="model-stat-label">Cache Creation</span>
+                        <span class="model-stat-value">${formatTokens(model.cacheCreationTokens)}</span>
+                    </div>
+                    <div class="model-stat">
+                        <span class="model-stat-label">Cache Reads</span>
+                        <span class="model-stat-value">${formatTokens(model.cacheReadTokens)}</span>
+                    </div>
+                    <div class="model-stat">
+                        <span class="model-stat-label">Cost</span>
+                        <span class="model-stat-value" style="color: #10b981;">${formatCurrency(model.cost)}</span>
+                    </div>
+                    <div class="model-stat">
+                        <span class="model-stat-label">Cache Savings</span>
+                        <span class="model-stat-value" style="color: #8b5cf6;">${formatCurrency(model.cacheSavings)}</span>
+                    </div>
+                `;
+                modelGrid.appendChild(card);
+            });
+        }
+
+        function renderCost(costData) {
+            const breakdown = document.getElementById('costBreakdown');
+            breakdown.innerHTML = '';
+
+            costData.modelBreakdowns.forEach(model => {
+                const item = document.createElement('div');
+                item.className = 'cost-item';
+                item.innerHTML = `
+                    <span class="cost-item-label">${model.modelName}</span>
+                    <span class="cost-item-value">${formatCurrency(model.totalCost)}
+                        <span class="badge badge-green">${Math.round(model.cacheSavingsPercentage)}% saved</span>
+                    </span>
+                `;
+                breakdown.appendChild(item);
+            });
+
+            // Total
+            const total = document.createElement('div');
+            total.className = 'cost-item total';
+            total.innerHTML = `
+                <span class="cost-item-label">TOTAL COST</span>
+                <span class="cost-item-value">${formatCurrency(costData.totalCost)}</span>
+            `;
+            breakdown.appendChild(total);
+
+            // Savings
+            const savings = document.createElement('div');
+            savings.className = 'cost-item';
+            savings.style.background = '#f0fdf4';
+            savings.innerHTML = `
+                <span class="cost-item-label">Total Cache Savings (${Math.round(costData.totalCacheSavingsPercentage)}%)</span>
+                <span class="cost-item-value" style="color: #8b5cf6;">${formatCurrency(costData.totalCacheSavings)}</span>
+            `;
+            breakdown.appendChild(savings);
+        }
+
+        function renderSessions(sessions) {
+            const table = document.getElementById('sessionsTable');
+            table.innerHTML = '';
+
+            sessions.forEach(session => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${formatDateTime(session.lastMessage)}</td>
+                    <td><span class="project-badge">${getProjectName(session.project)}</span></td>
+                    <td>${session.messageCount}</td>
+                    <td>${session.cost ? formatCurrency(session.cost) : 'N/A'}</td>
+                `;
+                table.appendChild(row);
+            });
+        }
+
+        // Main load function
+        async function loadAllData() {
+            const loading = document.getElementById('loading');
+            const content = document.getElementById('content');
+            const error = document.getElementById('error');
+            const refreshBtn = document.getElementById('refreshBtn');
+
+            loading.style.display = 'block';
+            content.style.display = 'none';
+            error.style.display = 'none';
+            refreshBtn.disabled = true;
+
+            try {
+                const [stats, cost, sessions] = await Promise.all([
+                    fetchStats(),
+                    fetchCost(),
+                    fetchSessions(),
+                ]);
+
+                renderStats(stats);
+                renderCost(cost);
+                renderSessions(sessions);
+
+                loading.style.display = 'none';
+                content.style.display = 'block';
+            } catch (err) {
+                loading.style.display = 'none';
+                error.style.display = 'block';
+                error.textContent = 'Error loading data: ' + err.message;
+            } finally {
+                refreshBtn.disabled = false;
+            }
+        }
+
+        // Auto-refresh every 30 seconds
+        setInterval(loadAllData, 30000);
+
+        // Load data on page load
+        loadAllData();
+    </script>
+</body>
+</html>

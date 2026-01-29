@@ -7,6 +7,7 @@ import { statsCommand } from './commands/stats.js';
 import { costCommand } from './commands/cost.js';
 import { sessionsCommand } from './commands/sessions.js';
 import { syncCommand } from './commands/sync.js';
+import { serveCommand } from './commands/serve.js';
 
 const program = new Command();
 
@@ -60,6 +61,15 @@ program
   .option('--workspace <id>', 'Filter by workspace ID')
   .option('--no-cache', 'Do not cache API response locally')
   .action(syncCommand);
+
+// Serve command (Web UI)
+program
+  .command('serve')
+  .description('Start web UI server')
+  .option('-p, --port <port>', 'Port to run server on', '3000')
+  .option('-H, --host <host>', 'Host to bind server to', 'localhost')
+  .option('-o, --open', 'Open browser automatically', false)
+  .action(serveCommand);
 
 // Parse arguments
 program.parse(process.argv);
