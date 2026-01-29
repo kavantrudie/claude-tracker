@@ -6,6 +6,7 @@ import { Command } from 'commander';
 import { statsCommand } from './commands/stats.js';
 import { costCommand } from './commands/cost.js';
 import { sessionsCommand } from './commands/sessions.js';
+import { syncCommand } from './commands/sync.js';
 
 const program = new Command();
 
@@ -47,6 +48,18 @@ program
   .option('--sort <field>', 'Sort by field (date|cost|duration)', 'date')
   .option('--format <format>', 'Output format (table|json)', 'table')
   .action(sessionsCommand);
+
+// Sync command
+program
+  .command('sync')
+  .description('Sync usage data from Anthropic API')
+  .option('--api-key <key>', 'Anthropic Admin API key (or set ANTHROPIC_ADMIN_API_KEY)')
+  .option('--from <date>', 'Start date (YYYY-MM-DD)', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+  .option('--to <date>', 'End date (YYYY-MM-DD)', new Date().toISOString().split('T')[0])
+  .option('--time-bucket <bucket>', 'Time bucket (1m|1h|1d)', '1d')
+  .option('--workspace <id>', 'Filter by workspace ID')
+  .option('--no-cache', 'Do not cache API response locally')
+  .action(syncCommand);
 
 // Parse arguments
 program.parse(process.argv);

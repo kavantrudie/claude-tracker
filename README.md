@@ -129,6 +129,69 @@ Recent Sessions (Last 10):
 └────────────────────┴───────────────────────────────────┴──────────┴────────────┘
 ```
 
+### `claude-tracker sync`
+
+Sync usage and cost data directly from Anthropic's API. This command fetches official usage data from Anthropic's Admin API and displays detailed token usage and costs.
+
+```bash
+# Sync with Admin API key from environment
+export ANTHROPIC_ADMIN_API_KEY=sk-ant-admin-...
+npm run dev sync
+
+# Or pass API key directly
+npm run dev sync -- --api-key sk-ant-admin-...
+
+# Sync specific date range
+npm run dev sync -- --from 2026-01-01 --to 2026-01-31
+
+# Sync with hourly time buckets
+npm run dev sync -- --time-bucket 1h
+
+# Sync for specific workspace
+npm run dev sync -- --workspace ws-abc123
+```
+
+**Important Notes:**
+- Requires an **Admin API key** (starts with `sk-ant-admin...`)
+- Admin keys can be created at: https://console.anthropic.com/settings/keys
+- Only organization members with admin role can provision Admin API keys
+- Data typically appears within 5 minutes of API request completion
+
+**Example Output:**
+```
+📊 Syncing Claude API Usage Data
+
+  Date range: 2026-01-01 to 2026-01-31
+  Time bucket: 1d
+
+✓ Sync successful
+
+Usage Data:
+  Records fetched: 31
+
+Token Usage by Model:
+  claude-opus-4-5-20251101
+    Input:  133.8K
+    Output: 262.4K
+    Cache Creation: 7.8M
+    Cache Reads: 92.8M
+    Total: 396.2K
+
+Cost Breakdown:
+  Claude Opus 4.5: $102.50
+    Cache Savings: $407.60 (80%)
+
+Total Cost (from calculated tokens):
+  $142.69
+  Cache Savings: $545.45 (79%)
+
+Total Cost (from Anthropic API):
+  $142.69
+
+✓ Cached API response locally
+Synced at: Jan 29, 8:30 PM
+```
+
 ## Global Options
 
 All commands support these global options:
@@ -140,13 +203,24 @@ All commands support these global options:
 
 ## How It Works
 
-The tool reads data from Claude Code's local storage files:
+The tool supports two data sources:
+
+### 1. Local Files (Default)
+Reads data from Claude Code's local storage files:
 
 - `~/.claude/stats-cache.json` - Token usage and daily metrics
 - `~/.claude.json` - Per-project costs and configuration
 - `~/.claude/history.jsonl` - Conversation history
 
-It then calculates costs using the current Claude API pricing:
+### 2. Anthropic API (Optional)
+Fetches official usage data directly from Anthropic's Admin API:
+
+- Usage Report API: `/v1/organizations/usage_report/messages`
+- Cost Report API: `/v1/organizations/cost_report`
+- Requires Admin API key (starts with `sk-ant-admin...`)
+- Use the `sync` command to fetch data from the API
+
+The tool then calculates costs using the current Claude API pricing:
 
 | Model | Input (per 1M tokens) | Output (per 1M tokens) | Cache Write | Cache Read |
 |-------|----------------------|------------------------|-------------|------------|
