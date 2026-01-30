@@ -12,6 +12,12 @@ import {
   getConfigPath,
   getHistoryPath,
 } from '../utils/path-resolver.js';
+import {
+  needsUpdate,
+  getAggregationStartDate,
+  aggregateHistoryByDay,
+  mergeWithStatsCache,
+} from '../utils/history-aggregator.js';
 
 async function fileExists(path: string): Promise<boolean> {
   try {
@@ -34,6 +40,34 @@ export async function loadClaudeData(options?: {
   if (await fileExists(statsCachePath)) {
     try {
       data.statsCache = await parseStatsCache(statsCachePath);
+
+      // Check if stats-cache is outdated and supplement with recent history
+      if (data.statsCache && needsUpdate(data.statsCache)) {
+        const historyPath = getHistoryPath();
+        if (await fileExists(historyPath)) {
+          try {
+            console.log(chalk.yellow(`⚠ stats-cache.json is outdated (last computed: ${data.statsCache.lastComputedDate})`));
+            console.log(chalk.cyan('📊 Supplementing with recent data from history.jsonl...'));
+
+            // Get start date for aggregation
+            const fromDate = getAggregationStartDate(data.statsCache);
+
+            // Load and filter history entries
+            const historyEntries = await parseHistory(historyPath);
+
+            // Aggregate history into daily stats
+            const newDailyStats = aggregateHistoryByDay(historyEntries, fromDate);
+
+            if (newDailyStats.length > 0) {
+              // Merge with existing stats-cache
+              data.statsCache = mergeWithStatsCache(data.statsCache, newDailyStats);
+              console.log(chalk.green(`✓ Added ${newDailyStats.length} day(s) of recent activity`));
+            }
+          } catch (error) {
+            warnings.push(`Could not supplement with history data: ${(error as Error).message}`);
+          }
+        }
+      }
     } catch (error) {
       warnings.push(`Could not load stats-cache.json: ${(error as Error).message}`);
     }
