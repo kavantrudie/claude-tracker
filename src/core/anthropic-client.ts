@@ -52,7 +52,7 @@ export class AnthropicClient {
       );
     }
 
-    return await response.json();
+    return await response.json() as UsageReportResponse;
   }
 
   /**
@@ -90,7 +90,7 @@ export class AnthropicClient {
       );
     }
 
-    return await response.json();
+    return await response.json() as CostReportResponse;
   }
 
   /**

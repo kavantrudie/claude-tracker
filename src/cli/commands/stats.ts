@@ -105,7 +105,7 @@ function outputTable(stats: any) {
 
   // Most active day
   if (dailyStats.length > 0) {
-    const mostActiveDay = dailyStats.reduce((max, day) =>
+    const mostActiveDay = dailyStats.reduce((max: typeof dailyStats[0], day: typeof dailyStats[0]) =>
       day.messageCount > max.messageCount ? day : max
     );
     console.log(
@@ -122,7 +122,7 @@ function outputTable(stats: any) {
 function outputJson(stats: any) {
   const output = {
     summary: stats.summary,
-    models: Array.from(stats.modelBreakdown.entries()).map(([id, model]) => ({
+    models: (Array.from(stats.modelBreakdown.entries()) as Array<[string, any]>).map(([id, model]) => ({
       modelId: id,
       ...model,
     })),

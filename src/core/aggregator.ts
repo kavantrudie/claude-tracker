@@ -105,11 +105,11 @@ export async function aggregateStats(data: Partial<ClaudeData>): Promise<Aggrega
     for (const [projectPath, metrics] of Object.entries(data.config.projects)) {
       stats.projectBreakdown.set(projectPath, {
         path: projectPath,
-        sessionCount: metrics.totalSessions || 0,
-        messageCount: metrics.totalMessages || 0,
+        sessionCount: 0, // TODO: Calculate from history
+        messageCount: 0, // TODO: Calculate from history
         totalCost: metrics.lastCost || 0, // Note: This is only the last session cost
-        lastSessionDate: metrics.lastSession
-          ? new Date(metrics.lastSession.timestamp)
+        lastSessionDate: metrics.lastSessionId
+          ? new Date() // TODO: Get actual date from lastSessionId lookup
           : new Date(),
         modelUsage: new Map(),
       });
