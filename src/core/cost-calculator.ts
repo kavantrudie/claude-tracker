@@ -23,7 +23,20 @@ export async function loadPricing(): Promise<PricingConfig> {
 }
 
 export function getPricing(modelId: string, config: PricingConfig): ModelPricing | null {
-  return config.models[modelId] || null;
+  // Exact match first
+  if (config.models[modelId]) {
+    return config.models[modelId];
+  }
+
+  // Fuzzy match: strip date suffix (e.g., claude-opus-4-6-20260205 -> claude-opus-4-6)
+  // and try matching against known base model IDs
+  for (const [knownId, pricing] of Object.entries(config.models)) {
+    if (modelId.startsWith(knownId)) {
+      return pricing;
+    }
+  }
+
+  return null;
 }
 
 export interface CostCalculationInput {

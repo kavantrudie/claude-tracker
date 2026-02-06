@@ -58,12 +58,26 @@ export function formatPercentage(value: number): string {
 // Format model name for display
 export function formatModelName(modelId: string): string {
   const modelNames: Record<string, string> = {
-    'claude-opus-4-5-20251101': 'Claude Opus 4.5',
-    'claude-sonnet-4-5-20250929': 'Claude Sonnet 4.5',
-    'claude-haiku-4-5-20251001': 'Claude Haiku 4.5',
+    'claude-opus-4-6[1m]': 'Claude Opus 4.6 (1M)',
+    'claude-opus-4-6': 'Claude Opus 4.6',
+    'claude-opus-4-5': 'Claude Opus 4.5',
+    'claude-sonnet-4-5': 'Claude Sonnet 4.5',
+    'claude-haiku-4-5': 'Claude Haiku 4.5',
   };
 
-  return modelNames[modelId] || modelId;
+  // Exact match first
+  if (modelNames[modelId]) {
+    return modelNames[modelId];
+  }
+
+  // Fuzzy match: strip date suffix (e.g., claude-opus-4-6-20260205 -> claude-opus-4-6)
+  for (const [knownId, name] of Object.entries(modelNames)) {
+    if (modelId.startsWith(knownId)) {
+      return name;
+    }
+  }
+
+  return modelId;
 }
 
 // Create a simple horizontal bar chart

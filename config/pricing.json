@@ -1,21 +1,35 @@
 {
-  "version": "2026-01",
+  "version": "2026-02",
   "models": {
-    "claude-opus-4-5-20251101": {
+    "claude-opus-4-6[1m]": {
+      "name": "Claude Opus 4.6 (1M context)",
+      "inputTokenPrice": 5.0,
+      "outputTokenPrice": 25.0,
+      "cacheWritePrice": 6.25,
+      "cacheReadPrice": 0.5
+    },
+    "claude-opus-4-6": {
+      "name": "Claude Opus 4.6",
+      "inputTokenPrice": 5.0,
+      "outputTokenPrice": 25.0,
+      "cacheWritePrice": 6.25,
+      "cacheReadPrice": 0.5
+    },
+    "claude-opus-4-5": {
       "name": "Claude Opus 4.5",
       "inputTokenPrice": 5.0,
       "outputTokenPrice": 25.0,
       "cacheWritePrice": 6.25,
       "cacheReadPrice": 0.5
     },
-    "claude-sonnet-4-5-20250929": {
+    "claude-sonnet-4-5": {
       "name": "Claude Sonnet 4.5",
       "inputTokenPrice": 3.0,
       "outputTokenPrice": 15.0,
       "cacheWritePrice": 3.75,
       "cacheReadPrice": 0.3
     },
-    "claude-haiku-4-5-20251001": {
+    "claude-haiku-4-5": {
       "name": "Claude Haiku 4.5",
       "inputTokenPrice": 1.0,
       "outputTokenPrice": 5.0,

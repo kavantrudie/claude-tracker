@@ -272,6 +272,8 @@ The tool then calculates costs using the current Claude API pricing:
 
 | Model | Input (per 1M tokens) | Output (per 1M tokens) | Cache Write | Cache Read |
 |-------|----------------------|------------------------|-------------|------------|
+| **Opus 4.6** | $5.00 | $25.00 | $6.25 | $0.50 |
+| **Opus 4.6 (1M context)** | $5.00 ($10.00 >200K) | $25.00 ($37.50 >200K) | $6.25 | $0.50 |
 | **Opus 4.5** | $5.00 | $25.00 | $6.25 | $0.50 |
 | **Sonnet 4.5** | $3.00 | $15.00 | $3.75 | $0.30 |
 | **Haiku 4.5** | $1.00 | $5.00 | $1.25 | $0.10 |
@@ -320,10 +322,10 @@ To update pricing, edit `config/pricing.json`:
 
 ```json
 {
-  "version": "2026-01",
+  "version": "2026-02",
   "models": {
-    "claude-opus-4-5-20251101": {
-      "name": "Claude Opus 4.5",
+    "claude-opus-4-6": {
+      "name": "Claude Opus 4.6",
       "inputTokenPrice": 5.0,
       "outputTokenPrice": 25.0,
       "cacheWritePrice": 6.25,
