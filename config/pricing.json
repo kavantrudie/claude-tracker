@@ -1,6 +1,27 @@
 {
-  "version": "2026-02",
+  "version": "2026-04",
   "models": {
+    "claude-opus-4-7[1m]": {
+      "name": "Claude Opus 4.7 (1M context)",
+      "inputTokenPrice": 5.0,
+      "outputTokenPrice": 25.0,
+      "cacheWritePrice": 6.25,
+      "cacheReadPrice": 0.5
+    },
+    "claude-opus-4-7": {
+      "name": "Claude Opus 4.7",
+      "inputTokenPrice": 5.0,
+      "outputTokenPrice": 25.0,
+      "cacheWritePrice": 6.25,
+      "cacheReadPrice": 0.5
+    },
+    "claude-sonnet-4-6": {
+      "name": "Claude Sonnet 4.6",
+      "inputTokenPrice": 3.0,
+      "outputTokenPrice": 15.0,
+      "cacheWritePrice": 3.75,
+      "cacheReadPrice": 0.3
+    },
     "claude-opus-4-6[1m]": {
       "name": "Claude Opus 4.6 (1M context)",
       "inputTokenPrice": 5.0,

@@ -58,6 +58,9 @@ export function formatPercentage(value: number): string {
 // Format model name for display
 export function formatModelName(modelId: string): string {
   const modelNames: Record<string, string> = {
+    'claude-opus-4-7[1m]': 'Claude Opus 4.7 (1M)',
+    'claude-opus-4-7': 'Claude Opus 4.7',
+    'claude-sonnet-4-6': 'Claude Sonnet 4.6',
     'claude-opus-4-6[1m]': 'Claude Opus 4.6 (1M)',
     'claude-opus-4-6': 'Claude Opus 4.6',
     'claude-opus-4-5': 'Claude Opus 4.5',
